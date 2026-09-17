@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>쓰레기통 속 주머니쥐의 포춘쿠키</title>
+  <style>
+    :root {
+      --bg-color: #f3efe6;
+      --card-bg: #ffffff;
+      --accent: #ff8b94;
+      --text-main: #333333;
+      --text-sub: #777777;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      color: var(--text-main);
+    }
+
+    .container {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      max-width: 480px;
+      width: 90%;
+    }
+
+    .header-text h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .header-text p {
+      font-size: 0.9rem;
+      color: var(--text-sub);
+      margin-top: 4px;
+    }
+
+    /* 캐릭터 인터랙션 영역 */
+    .character-stage {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      cursor: pointer;
+    }
+
+    .character-stage:hover .possum {
+      transform: translateY(-8px);
+    }
+
+    .character-stage:active {
+      transform: scale(0.96);
+    }
+
+    svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    /* 흔들림 애니메이션 */
+    .shake {
+      animation: canShake 0.4s ease-in-out;
+    }
+
+    @keyframes canShake {
+      0%, 100% { transform: rotate(0deg); }
+      20% { transform: rotate(-6deg) translateX(-4px); }
+      40% { transform: rotate(6deg) translateX(4px); }
+      60% { transform: rotate(-3deg); }
+      80% { transform: rotate(3deg); }
+    }
+
+    .possum {
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* 말풍선 / 운세 카드 */
+    .bubble {
+      opacity: 0;
+      transform: translateY(12px) scale(0.95);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 1.25rem 1.5rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      position: relative;
+      width: 100%;
+      min-height: 90px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .bubble.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .bubble::after {
+      content: "";
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 0 8px 8px 8px;
+      border-style: solid;
+      border-color: transparent transparent var(--card-bg) transparent;
+    }
+
+    .fortune-tag {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent);
+      background: rgba(255, 139, 148, 0.15);
+      padding: 3px 10px;
+      border-radius: 999px;
+      margin-bottom: 6px;
+    }
+
+    .fortune-text {
+      font-size: 1rem;
+      line-height: 1.45;
+      font-weight: 600;
+      color: var(--text-main);
+      word-break: keep-all;
+    }
+
+    .hint {
+      font-size: 0.8rem;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header-text">
+      <h1>쓰레기통 속 주머니쥐</h1>
+      <p>쓰레기통을 톡 치면 오늘의 운세를 꺼내줘요</p>
+    </div>
+
+    <!-- 인터랙티브 그래픽 -->
+    <div class="character-stage" id="stage" onclick="pickFortune()">
+      <svg viewBox="0 0 200 200">
+        <!-- 뒤쪽 캔 안쪽 어둠 -->
+        <ellipse cx="100" cy="115" rx="60" ry="12" fill="#4a4d52" />
+
+      <!-- 주머니쥐 -->
+<g class="possum" id="possum">
+  <!-- 꼬리 살짝 삐져나옴 -->
+  <path
+    d="M 155 125 Q 175 120 170 100 Q 165 90 158 98"
+    fill="none"
+    stroke="#f6b8b8"
+    stroke-width="4"
+    stroke-linecap="round"
+  />
+
+  <!-- 귀 (왼쪽, 오른쪽) -->
+  <ellipse cx="78" cy="72" rx="14" ry="16" fill="#444" />
+  <ellipse cx="78" cy="72" rx="8" ry="10" fill="#f6b8b8" />
+
+  <ellipse cx="122" cy="72" rx="14" ry="16" fill="#444" />
+  <ellipse cx="122" cy="72" rx="8" ry="10" fill="#f6b8b8" />
+
+  <!-- 얼굴/몸통 베이스 -->
+  <ellipse
+    cx="100"
+    cy="95"
+    rx="38"
+    ry="32"
+    fill="#888c94"
+  />
+
+  <!-- 얼굴 흰색 털 -->
+  <path
+    d="
+      M 82 84
+      C 82 73, 118 73, 118 84
+      C 118 91, 114 96, 110 99
+      L 100 116
+      L 90 99
+      C 86 96, 82 91, 82 84
+      Z
+    "
+    fill="#ffffff"
+  />
+
+  <!-- 눈: 단색 검은색 원 -->
+  <circle
+    cx="88"
+    cy="90"
+    r="5"
+    fill="#111111"
+  />
+
+  <circle
+    cx="112"
+    cy="90"
+    r="5"
+    fill="#111111"
+  />
+
+  <!-- 볼터치 -->
+  <ellipse
+    cx="80"
+    cy="99"
+    rx="4"
+    ry="2.5"
+    fill="#ffb4b4"
+    opacity="0.7"
+  />
+
+  <ellipse
+    cx="120"
+    cy="99"
+    rx="4"
+    ry="2.5"
+    fill="#ffb4b4"
+    opacity="0.7"
+  />
+
+  <!-- 뾰족한 주둥이 -->
+  <path
+    d="
+      M 91 101
+      Q 100 98, 109 101
+      L 100 116
+      Z
+    "
+    fill="#f4f4f4"
+  />
+
+  <!-- 분홍색 작은 코 -->
+  <path
+    d="
+      M 96 110
+      Q 100 107, 104 110
+      Q 103 114, 100 115
+      Q 97 114, 96 110
+      Z
+    "
+    fill="#f6a9ad"
+  />
+
+  <!-- 작은 앞발 (쓰레기통 림 잡기) -->
+  <ellipse
+    cx="82"
+    cy="116"
+    rx="5"
+    ry="4"
+    fill="#f6b8b8"
+  />
+
+  <ellipse
+    cx="118"
+    cy="116"
+    rx="5"
+    ry="4"
+    fill="#f6b8b8"
+  />
+</g>
+
+        <!-- 쓰레기통 몸체 -->
+        <g id="trashCan">
+          <!-- 캔 몸통 (사다리꼴) -->
+          <path d="M 44 116 L 56 185 Q 100 195 144 185 L 156 116 Z" fill="#9aa0a6" />
+          <!-- 캔 텍스처 줄무늬 -->
+          <path d="M 75 118 L 80 187" stroke="#80868b" stroke-width="3" stroke-linecap="round" />
+          <path d="M 100 118 L 100 189" stroke="#80868b" stroke-width="3" stroke-linecap="round" />
+          <path d="M 125 118 L 120 187" stroke="#80868b" stroke-width="3" stroke-linecap="round" />
+
+          <!-- 캔 입구 테두리 (림) -->
+          <ellipse cx="100" cy="116" rx="58" ry="11" fill="#bdc1c6" />
+          <ellipse cx="100" cy="116" rx="54" ry="8" fill="none" stroke="#80868b" stroke-width="1.5" />
+        </g>
+      </svg>
+    </div>
+
+    <!-- 운세 말풍선 -->
+    <div class="bubble" id="fortuneBubble">
+      <span class="fortune-tag" id="fortuneTag">오늘의 운세</span>
+      <p class="fortune-text" id="fortuneText">클릭하면 오늘의 운세를 말해줄게!</p>
+    </div>
+
+    <div class="hint">쓰레기통을 탭해서 새로운 운세를 확인하세요</div>
+  </div>
+
+  <script>
+    // 일반적이고 따뜻한 운세 데이터
+    const fortunes = [
+      { tag: "행운", text: "예상치 못한 곳에서 소소하지만 기분 좋은 행운을 만나게 돼요." },
+      { tag: "용기", text: "망설이던 일이 있다면 오늘 과감하게 시작해보세요. 생각보다 순조로울 거예요." },
+      { tag: "인연", text: "주변 사람과의 따뜻한 대화 한마디가 오늘 하루를 든든하게 채워줍니다." },
+      { tag: "휴식", text: "잠깐의 차 한 잔과 깊은 심호흡이 더 맑은 집중력을 선물할 거예요." },
+      { tag: "선물", text: "오늘은 나를 위한 작은 보상(맛있는 간식, 조기 퇴근)을 아끼지 마세요." },
+      { tag: "자신감", text: "스스로를 의심하지 마세요. 이미 충분히 잘 해내고 있습니다." },
+      { tag: "결실", text: "그동안 조용히 공들여온 일에 작고 반가운 변화가 찾아옵니다." },
+      { tag: "직감", text: "오늘 떠오르는 첫 번째 직감을 믿어보세요. 꽤 훌륭한 선택이 됩니다." },
+      { tag: "컨디션", text: "몸과 마음의 에너지가 차오르는 날입니다. 가벼운 산책을 추천해요." },
+      { tag: "관계", text: "먼저 건네는 사소한 인사가 뜻밖의 커다란 호의로 돌아오게 됩니다." }
+    ];
+
+    let lastIndex = -1;
+
+    // 귀여운 신시사이저 비프음 (Web Audio API - 외부 오디오 파일 불필요)
+    function playCuteSound() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+        osc.frequency.exponentialRampToValueAtTime(783.99, audioCtx.currentTime + 0.15); // G5
+
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.2);
+      } catch (e) {
+        // 브라우저 자동 재생 제한 무시
+      }
+    }
+
+    function pickFortune() {
+      const stage = document.getElementById("stage");
+      const bubble = document.getElementById("fortuneBubble");
+      const tag = document.getElementById("fortuneTag");
+      const text = document.getElementById("fortuneText");
+
+      // 쓰레기통 흔들림 애니메이션 트리거
+      stage.classList.remove("shake");
+      void stage.offsetWidth; // Reflow 트리거
+      stage.classList.add("shake");
+
+      // 효과음 재생
+      playCuteSound();
+
+      // 중복 방지 랜덤 선택
+      let randomIndex;
+      do {
+        randomIndex = Math.floor(Math.random() * fortunes.length);
+      } while (randomIndex === lastIndex && fortunes.length > 1);
+      lastIndex = randomIndex;
+
+      const selected = fortunes[randomIndex];
+
+      // 말풍선 갱신 및 표시
+      tag.textContent = `오늘의 ${selected.tag}`;
+      text.textContent = selected.text;
+      bubble.classList.add("show");
+    }
+  </script>
+</body>
+</html>
